@@ -243,7 +243,7 @@ public class Candidat {
 
     public void update() throws SQLException {
         Connection connection = Database.getConnection();
-        String sql = "UPDATE produit SET nom=?, prenom=?, telephone=?, mail=?, situation=?, adresse=? WHERE idCandidat=?";
+        String sql = "UPDATE candidat SET nom=?, prenom=?, telephone=?, mail=?, situation=?, adresse=? WHERE idCandidat=?";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, nom);
         stmt.setString(2, prenom);

@@ -5,6 +5,7 @@
 package com.miage.m1.Candidature.model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -148,6 +149,45 @@ public class Candidature {
 
         }
         return candidatures;
+    }
+    
+    
+    public void insert() throws SQLException {
+        Connection connection = Database.getConnection();
+        // Commencer une transaction
+        connection.setAutoCommit(false);
+        try {
+            // Inserer le produit
+            String sql = "INSERT INTO candidature(Candidat_idCandidat, Etat_idEtat, Promotion_idPromotion, motivation) VALUES(?, ?, ?, ?)";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, idCandidat);
+            stmt.setInt(2, idEtat);
+            stmt.setInt(3, idPromotion);
+            stmt.setString(4, motivation);
+           
+            stmt.executeUpdate();
+            stmt.close();
+            // Recuperer le id
+           
+            // Valider
+            connection.commit();
+        } catch (SQLException exc) {
+            connection.rollback();
+            exc.printStackTrace();
+            throw exc;
+        } finally {
+            connection.close();
+        }
+    }
+    
+    public void delete() throws SQLException {
+        Connection connection = Database.getConnection();
+        String sql = "DELETE FROM candidature WHERE Candidat_idCandidat=?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setInt(1, idCandidat);
+        stmt.executeUpdate();
+        stmt.close();
+        connection.close();
     }
     
     

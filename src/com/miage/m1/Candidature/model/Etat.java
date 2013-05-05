@@ -5,9 +5,14 @@
 package com.miage.m1.Candidature.model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -84,4 +89,86 @@ public class Etat {
         return tempEtat;
     }
     
+    public List<Etat> getEtats() {
+
+        Connection connexion = null;
+        Statement ps = null;
+        ResultSet rs = null;
+        List<Etat> etats = new ArrayList<Etat>();
+        try {
+            connexion = Database.getConnection();
+
+            String sql = "SELECT * FROM etat";
+            ps = connexion.createStatement();
+            rs = ps.executeQuery(sql);
+            while (rs.next()) {
+                Etat tempEtat = new Etat(rs.getInt("idEtat"), rs.getString("etat"));
+                etats.add(tempEtat);
+            }
+        } catch (SQLException exc) {
+            exc.printStackTrace();
+        } finally {
+            try {
+                Database.close(rs);
+                Database.close(ps);
+                Database.close(connexion);
+            } catch (SQLException ex) {
+                Logger.getLogger(Candidat.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+        return etats;
+    }
+
+    public void insert() throws SQLException {
+        Connection connection = Database.getConnection();
+        // Commencer une transaction
+        connection.setAutoCommit(false);
+        try {
+            // Inserer le produit
+            String sql = "INSERT INTO etat(etat) VALUES(?)";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, etat);
+            
+            stmt.executeUpdate();
+            stmt.close();
+            // Recuperer le id
+            Statement maxStmt = connection.createStatement();
+            ResultSet rs = maxStmt.executeQuery("SELECT MAX(idEtat) AS idEtat FROM etat");
+            rs.next();
+            id = rs.getInt("idEtat");
+            rs.close();
+            maxStmt.close();
+            // Valider
+            connection.commit();
+        } catch (SQLException exc) {
+            connection.rollback();
+            exc.printStackTrace();
+            throw exc;
+        } finally {
+            connection.close();
+        }
+    }
+
+    public void delete() throws SQLException {
+        Connection connection = Database.getConnection();
+        String sql = "DELETE FROM etat WHERE idEtat=?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setInt(1, id);
+        stmt.executeUpdate();
+        stmt.close();
+        connection.close();
+    }
+
+    public void update() throws SQLException {
+        Connection connection = Database.getConnection();
+        String sql = "UPDATE etat SET etat=? WHERE idEtat=?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        
+        
+        stmt.setInt(1, id);
+        stmt.executeUpdate();
+        stmt.close();
+        connection.close();
+    }
 }
