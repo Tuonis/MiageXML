@@ -27,8 +27,9 @@ public class Candidat {
     private String mail;
     private String situation;
     private String adresse;
+    private String mdp;
 
-    public Candidat(int id, String nom, String prenom, String telephone, String mail, String situation, String adresse) {
+    public Candidat(int id, String nom, String prenom, String telephone, String mail, String situation, String adresse, String mdp) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -36,6 +37,7 @@ public class Candidat {
         this.mail = mail;
         this.situation = situation;
         this.adresse = adresse;
+        this.mdp=mdp;
     }
 
     public int getId() {
@@ -93,6 +95,13 @@ public class Candidat {
     public void setAdresse(String adresse) {
         this.adresse = adresse;
     }
+    public String getMdp() {
+        return mdp;
+    }
+
+    public void setMdp(String mdp) {
+        this.mdp = mdp;
+    }
 
     @Override
     public int hashCode() {
@@ -144,7 +153,7 @@ public class Candidat {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery("SELECT * FROM candidat WHERE idCandidat=" + id);
         if (rs.next()) {
-            candidat = new Candidat(rs.getInt("idCandidat"), rs.getString("nom"), rs.getString("prenom"), rs.getString("telephone"), rs.getString("mail"), rs.getString("situation"), rs.getString("adresse"));
+            candidat = new Candidat(rs.getInt("idCandidat"), rs.getString("nom"), rs.getString("prenom"), rs.getString("telephone"), rs.getString("mail"), rs.getString("situation"), rs.getString("adresse"),rs.getString("mdp"));
         }
         rs.close();
         stmt.close();
@@ -158,7 +167,7 @@ public class Candidat {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery("SELECT * FROM candidat WHERE nom=" + nom);
         if (rs.next()) {
-            candidat = new Candidat(rs.getInt("idCandidat"), rs.getString("nom"), rs.getString("prenom"), rs.getString("telephone"), rs.getString("mail"), rs.getString("situation"), rs.getString("adresse"));
+            candidat = new Candidat(rs.getInt("idCandidat"), rs.getString("nom"), rs.getString("prenom"), rs.getString("telephone"), rs.getString("mail"), rs.getString("situation"), rs.getString("adresse"),rs.getString("mdp"));
         }
         rs.close();
         stmt.close();
@@ -179,7 +188,7 @@ public class Candidat {
             ps = connexion.createStatement();
             rs = ps.executeQuery(sql);
             while (rs.next()) {
-                Candidat candidat = new Candidat(rs.getInt("idCandidat"), rs.getString("nom"), rs.getString("prenom"), rs.getString("telephone"), rs.getString("mail"), rs.getString("situation"), rs.getString("adresse"));
+                Candidat candidat = new Candidat(rs.getInt("idCandidat"), rs.getString("nom"), rs.getString("prenom"), rs.getString("telephone"), rs.getString("mail"), rs.getString("situation"), rs.getString("adresse"),rs.getString("mdp"));
                 candidats.add(candidat);
             }
         } catch (SQLException exc) {
@@ -203,7 +212,7 @@ public class Candidat {
         connection.setAutoCommit(false);
         try {
             // Inserer le produit
-            String sql = "INSERT INTO candidat(nom, prenom, telephone, mail, situation, adresse) VALUES(?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO candidat(nom, prenom, telephone, mail, situation, adresse, mdp) VALUES(?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, nom);
             stmt.setString(2, prenom);
@@ -211,6 +220,7 @@ public class Candidat {
             stmt.setString(4, mail);
             stmt.setString(5, situation);
             stmt.setString(6, adresse);
+            stmt.setString(7, mdp);
             stmt.executeUpdate();
             stmt.close();
             // Recuperer le id
@@ -243,7 +253,7 @@ public class Candidat {
 
     public void update() throws SQLException {
         Connection connection = Database.getConnection();
-        String sql = "UPDATE candidat SET nom=?, prenom=?, telephone=?, mail=?, situation=?, adresse=? WHERE idCandidat=?";
+        String sql = "UPDATE candidat SET nom=?, prenom=?, telephone=?, mail=?, situation=?, adresse=?, mdp=? WHERE idCandidat=?";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, nom);
         stmt.setString(2, prenom);
@@ -251,7 +261,8 @@ public class Candidat {
         stmt.setString(4, mail);
         stmt.setString(5, situation);
         stmt.setString(6, adresse);
-        stmt.setInt(7, id);
+        stmt.setString(7, mdp);
+        stmt.setInt(8, id);
         stmt.executeUpdate();
         stmt.close();
         connection.close();
