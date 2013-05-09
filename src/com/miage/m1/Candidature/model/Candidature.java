@@ -115,7 +115,7 @@ public class Candidature {
         return true;
     }
 
-    public static Candidature getById(int idCandidat, int idPromotion) throws SQLException {
+    public static Candidature getCandidature(int idCandidat, int idPromotion) throws SQLException {
 
         Candidature candidature = null;
         Connection connection = Database.getConnection();
@@ -253,9 +253,24 @@ public class Candidature {
 
     public void delete() throws SQLException {
         Connection connection = Database.getConnection();
-        String sql = "DELETE FROM candidature WHERE Candidat_idCandidat=?";
+        String sql = "DELETE FROM candidature WHERE Candidat_idCandidat=? and Promotion_idPromotion=?";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setInt(1, idCandidat);
+        stmt.setInt(2, idPromotion);
+        stmt.executeUpdate();
+        stmt.close();
+        connection.close();
+    }
+    
+     public void update() throws SQLException {
+        Connection connection = Database.getConnection();
+        String sql = "UPDATE promotion SET Etat_idEtat=?, dateCandidature=?, motivation=? WHERE Candidat_idCandidat=? and Promotion_idPromotion=?";
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        stmt.setInt(1, idEtat);
+        stmt.setString(2, dateCandidature);
+        stmt.setString(3, motivation);
+        stmt.setInt(4, idCandidat);
+        stmt.setInt(5, idPromotion);
         stmt.executeUpdate();
         stmt.close();
         connection.close();

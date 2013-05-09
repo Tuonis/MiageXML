@@ -29,7 +29,11 @@ public class CandidatureResource extends ServerResource {
     /**
      * Id de la candidature correspondante
      */
-    int id;
+    int idCandidat;
+    /**
+     * Id de la candidature correspondante
+     */
+    int idPromotion;
     /**
      * La candidature correspondante
      */
@@ -44,10 +48,15 @@ public class CandidatureResource extends ServerResource {
     List<String> erreurs;
 
     protected void init() {
-        String idAttribute = getRequest().getAttributes().get("id").toString();
+        String idAttribute1 = getRequest().getAttributes().get("idCandidat").toString();
+        String idAttribute2 = getRequest().getAttributes().get("idPromotion").toString();
         try {
-            id = Integer.parseInt(idAttribute);
-            if (id <= 0) {
+            idCandidat = Integer.parseInt(idAttribute1);
+            idPromotion = Integer.parseInt(idAttribute2);
+            if (idCandidat <= 0) {
+                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "idNotPositiveInteger");
+            }
+            if (idPromotion <= 0) {
                 throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "idNotPositiveInteger");
             }
         } catch (NumberFormatException exc) {
@@ -59,20 +68,20 @@ public class CandidatureResource extends ServerResource {
     @Get("xml")
     public Representation doGet() throws SQLException, IOException {
         init();
-        candidature = candidature.getByIdCandidat(id);
+        candidature = candidature.getCandidature(idCandidat,idPromotion);
         if (candidature == null) {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
         }
         DomRepresentation dom = new DomRepresentation(MediaType.TEXT_XML);
         // Generer un DOM representant la ressource
         Document doc = dom.getDocument();
-        Element root = doc.createElement("candidat");
+        Element root = doc.createElement("candidature");
         doc.appendChild(root);
-        root.setAttribute("id", String.valueOf(promotion.getId()));
-        root.setAttribute("nom", promotion.getNom());
-        root.setAttribute("dateDeb", promotion.getDateDeb());
-        root.setAttribute("dateFin", promotion.getDateDeb());
-        root.setAttribute("periode", promotion.getPeriode());
+        root.setAttribute("idCandidat", String.valueOf(candidature.getIdCandidat()));
+        root.setAttribute("idEtat", String.valueOf(candidature.getIdEtat()));
+        root.setAttribute("idPromotion", String.valueOf(candidature.getIdPromotion()));
+        root.setAttribute("motivation", candidature.getMotivation());
+        root.setAttribute("dateCandidature", candidature.getDateCandidature());
 
         // Encodage en UTF-8
         dom.setCharacterSet(CharacterSet.UTF_8);
@@ -83,52 +92,41 @@ public class CandidatureResource extends ServerResource {
     @Put
     public Representation doPut(Representation entity) throws SQLException {
         init();
-        candidature = candidature.getById(id);
-        if (promotion == null) {
+        candidature = candidature.getCandidature(idCandidat,idPromotion);
+        if (candidature == null) {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
         }
         Form form = new Form(entity);
-        String nom = form.getFirstValue("nom");
-        String dateDeb = form.getFirstValue("dateDeb");
-        String dateFin = form.getFirstValue("dateFin");
-        String periode = form.getFirstValue("periode");
-        if (nom == null && dateDeb == null && dateFin == null && periode == null) {
+        Integer idEtat = Integer.parseInt(form.getFirstValue("idEtat"));
+        String motivation = form.getFirstValue("motivation");
+        String dateCandidature = form.getFirstValue("dateCandidature");
+        if (idEtat == null && motivation == null && dateCandidature == null) {
             throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "pasDeParametre");
         }
-        if (nom != null) {
-            if (nom.matches("^\\s*$")) {
-                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "nomVide");
+        if (idEtat == null) {
+            throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "idEtatVide");
+        }else {
+                candidature.setIdEtat(idEtat);
+        }
+
+        if (motivation != null) {
+            if (motivation.matches("^\\s*$")) {
+                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "motivationVide");
             } else {
-                promotion.setNom(nom);
+                candidature.setMotivation(motivation);
             }
         }
 
-        if (dateDeb != null) {
-            if (dateDeb.matches("^\\s*$")) {
-                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "dateDebVide");
+        if (dateCandidature != null) {
+            if (dateCandidature.matches("^\\s*$")) {
+                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "dateCandidatureVide");
             } else {
-                promotion.setDateDeb(dateDeb);
-            }
-        }
-
-        if (dateFin != null) {
-            if (dateFin.matches("^\\s*$")) {
-                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "dateFinVide");
-            } else {
-                promotion.setDateFin(dateFin);
-            }
-        }
-
-        if (periode != null) {
-            if (periode.matches("^\\s*$")) {
-                throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "periodeVide");
-            } else {
-                promotion.setPeriode(periode);
+                candidature.setDateCandidature(dateCandidature);
             }
         }
 
         try {
-            promotion.update();
+            candidature.update();
             setStatus(Status.SUCCESS_NO_CONTENT);
         } catch (SQLException exc) {
             exc.printStackTrace();

@@ -67,7 +67,7 @@ public class PromotionResource extends ServerResource {
         DomRepresentation dom = new DomRepresentation(MediaType.TEXT_XML);
         // Generer un DOM representant la ressource
         Document doc = dom.getDocument();
-        Element root = doc.createElement("candidat");
+        Element root = doc.createElement("promotion");
         doc.appendChild(root);
         root.setAttribute("id", String.valueOf(promotion.getId()));
         root.setAttribute("nom", promotion.getNom());

@@ -4,6 +4,7 @@
  */
 package com.miage.m1.Candidature.model;
 
+import com.miage.m1.Candidature.model.Database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,6 +39,10 @@ public class Candidat {
         this.situation = situation;
         this.adresse = adresse;
         this.mdp=mdp;
+    }
+    
+    public Candidat(){
+        
     }
 
     public int getId() {
@@ -208,11 +213,9 @@ public class Candidat {
 
     public void insert() throws SQLException {
         Connection connection = Database.getConnection();
-        // Commencer une transaction
-        connection.setAutoCommit(false);
         try {
             // Inserer le produit
-            String sql = "INSERT INTO candidat(nom, prenom, telephone, mail, situation, adresse, mdp) VALUES(?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO candidat(idCandidat,nom, prenom, telephone, mail, situation, adresse, mdp) VALUES(NULL, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, nom);
             stmt.setString(2, prenom);
@@ -231,9 +234,9 @@ public class Candidat {
             rs.close();
             maxStmt.close();
             // Valider
-            connection.commit();
+            //connection.commit();
         } catch (SQLException exc) {
-            connection.rollback();
+            //connection.rollback();
             exc.printStackTrace();
             throw exc;
         } finally {
